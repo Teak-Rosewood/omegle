@@ -27,7 +27,8 @@ io.on("connection", (socket: Socket) => {
     console.log("Total Connections:", ++total_connections);
     userManager.createUser("user-" + total_connections.toString(), socket);
     socket.on("disconnect", () => {
-        console.log("Total Connections:", total_connections--);
+        total_connections--;
+        // console.log("Total Connections:", total_connections--);
         userManager.removeUser(socket.id);
     });
 });

@@ -14,7 +14,6 @@ export class UserManager {
         this.users = [];
         this.queue = [];
         this.room_manager = new RoomManager();
-        // setInte0);
     }
 
     createUser(name: string, socket: Socket) {
@@ -30,12 +29,19 @@ export class UserManager {
     }
 
     removeUser(SocketID: string) {
-        Array.from(this.room_manager.rooms.entries()).find(([key, value]) => {
+        const room = Array.from(this.room_manager.rooms.entries()).find(([key, value]) => {
             return SocketID === value.user1.socket.id || SocketID === value.user2.socket.id;
         });
 
+        if (room) {
+            const receivingUser = SocketID !== room[1].user1.socket.id ? room[1].user1 : room[1].user2;
+            receivingUser.socket.emit("switch-user");
+            receivingUser.socket.emit("lobby", true);
+            this.room_manager.rooms.delete(room[0]);
+        }
         this.users = this.users.filter((user) => user.socket.id !== SocketID);
         this.queue = this.queue.filter((id) => id !== SocketID);
+
         this.clearQueue();
     }
 

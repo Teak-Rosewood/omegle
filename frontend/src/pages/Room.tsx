@@ -1,18 +1,31 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { io } from "socket.io-client";
+import { Socket, io } from "socket.io-client";
 const URL = "http://localhost:3001";
 
 const Room = () => {
-    const [lobby, setLobby] = useState(false);
+    const [lobby, setLobby] = useState(true);
     const [receiver, setReceiver] = useState("");
     const { name } = useParams();
+    const [socket, setSocket] = useState<null | Socket>(null);
+    const switchUser = useCallback((socket: Socket | null) => {
+        if (socket === null) return;
+        setLobby(true);
+        socket.disconnect();
+        socket.connect();
+    }, []);
+
     useEffect(() => {
-        const socket = io(URL);
+        const socket = io(URL, { autoConnect: false });
+        setSocket(socket);
         socket.connect();
 
-        socket.on("lobby", () => {
-            setLobby(true);
+        socket.on("lobby", (status) => {
+            setLobby(status);
+        });
+
+        socket.on("switch-user", () => {
+            switchUser(socket);
         });
 
         socket.on("send-offer", ({ roomId }) => {
@@ -29,7 +42,6 @@ const Room = () => {
             console.log(username);
             setReceiver(username);
             setLobby(false);
-            console.log("connection completed");
         });
         return () => {
             socket.disconnect();
@@ -39,7 +51,7 @@ const Room = () => {
     if (lobby === true) {
         return (
             <>
-                <div>{name} is currently waiting in the lobby</div>
+                <div>You are currently waiting in the lobby...</div>
             </>
         );
     }
@@ -48,6 +60,7 @@ const Room = () => {
             <div>
                 You are {name} and connected with {receiver}
             </div>
+            <button onClick={() => switchUser(socket)}>Find Someone Else</button>
         </>
     );
 };
