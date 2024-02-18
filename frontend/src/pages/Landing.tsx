@@ -1,14 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Landing = () => {
-    const [name, setName] = useState("");
+    const navigate = useNavigate();
+    const [name, setName] = useState("user-1");
     return (
         <>
-            <input type="text" placeholder="Name" onChange={(event) => setName(event.target.value)}></input>
+            <input type="text" placeholder="Name" defaultValue="user-1" onChange={(event) => setName(event.target.value)}></input>
             <div>
                 <button
                     onClick={() => {
-                        //create room and join  a room
+                        navigate("/room/" + name);
                     }}
                 >
                     Join Room

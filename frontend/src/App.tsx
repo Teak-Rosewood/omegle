@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
-import { Suspense, lazy } from "react";
+import { Suspense, useState } from "react";
 
-const Landing = lazy(() => import("./pages/Landing"));
-const Room = lazy(() => import("./pages/Room"));
+import Room from "./pages/Room";
+import Landing from "./pages/Landing";
 
 function App() {
     return (
@@ -12,7 +12,7 @@ function App() {
                 <Suspense fallback={<div>Loading...</div>}>
                     <Routes>
                         <Route path="/" element={<Landing />} />
-                        <Route path="/room" element={<Room />} />
+                        <Route path="/room/:name" element={<Room />} />
                     </Routes>
                 </Suspense>
             </BrowserRouter>
