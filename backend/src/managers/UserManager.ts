@@ -23,13 +23,17 @@ export class UserManager {
             socket: socket,
         });
         this.queue.push(socket.id);
-        socket.emit("lobby");
+        socket.emit("lobby", true);
         socket.on;
         this.initHandeler(socket);
         this.clearQueue();
     }
 
     removeUser(SocketID: string) {
+        Array.from(this.room_manager.rooms.entries()).find(([key, value]) => {
+            return SocketID === value.user1.socket.id || SocketID === value.user2.socket.id;
+        });
+
         this.users = this.users.filter((user) => user.socket.id !== SocketID);
         this.queue = this.queue.filter((id) => id !== SocketID);
         this.clearQueue();
