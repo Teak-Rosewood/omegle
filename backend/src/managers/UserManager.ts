@@ -28,6 +28,13 @@ export class UserManager {
         this.clearQueue();
     }
 
+    exchangeMessage(roomId: string, message: string, senderSocketID: string) {
+        const room = this.room_manager.rooms.get(roomId);
+        if (!room) return;
+        const receivingUser = room.user1.socket.id === senderSocketID ? room.user2 : room.user1;
+        receivingUser.socket.emit("new-message", { message: message });
+    }
+
     removeUser(SocketID: string) {
         const room = Array.from(this.room_manager.rooms.entries()).find(([key, value]) => {
             return SocketID === value.user1.socket.id || SocketID === value.user2.socket.id;
@@ -60,6 +67,9 @@ export class UserManager {
     }
 
     initHandeler(socket: Socket) {
+        socket.on("send-message", ({ roomId, message }) => {
+            this.exchangeMessage(roomId, message, socket.id);
+        });
         socket.on("offer", ({ sdp, roomId, username }) => {
             this.room_manager.onOffer(roomId, sdp, socket.id, username);
         });
