@@ -31,6 +31,7 @@ const Room = () => {
 
     const sendMessage = () => {
         if (!socket || !name) return;
+        setMessage("");
         setConversation((prevValue) => [...prevValue, { username: name, message: message }]);
         socket.emit("send-message", { roomId: roomID, message: message });
     };
@@ -92,9 +93,6 @@ const Room = () => {
             // const sender_sdp = await pc.createAnswer();
             setReceiver(username);
             receiving_user = username;
-            setTimeout(() => {
-                console.log("username:", username, "variable set:", receiver);
-            }, 2000);
             setRoomID(roomId);
             setLobby(false);
             socket.emit("answer", { sdp: "", room_id: roomId, username: name });
@@ -103,9 +101,6 @@ const Room = () => {
         socket.on("answer", ({ sdp, roomId, username }) => {
             setReceiver(username);
             receiving_user = username;
-            setTimeout(() => {
-                console.log("username:", username, "variable set:", receiver);
-            }, 2000);
             setLobby(false);
         });
 
@@ -130,14 +125,14 @@ const Room = () => {
     }
     return (
         <>
-            <div className="flex flex-row ">
-                <div className="flex-1 border-2 border-gray-500">
+            <div className="flex flex-row items-end">
+                <div className="flex-1 border-2 border-gray-500 p-1">
                     <div className="flex flex-col">
                         <video autoPlay height={600} width={600} ref={localVideoRef} />
                         <video autoPlay height={600} width={600} ref={localVideoRef} />
                     </div>
                 </div>
-                <div className="flex-1 border-2 border-gray-500">
+                <div className="flex-1 p-1 ">
                     <div>
                         {conversation.map((value, index) => {
                             if (value.username === name)
@@ -162,12 +157,24 @@ const Room = () => {
                                 </>
                             );
                         })}
+                        you are talking to {receiver}
                     </div>
-                    <div className="flex flex-row">
-                        <input type="text" defaultValue="" placeholder="enter message... " onChange={(event) => setMessage(event.target.value)} />
-                        <button onClick={sendMessage}>Send</button>
+                    <div className="flex flex-row relative inset-x-0 bottom-0">
+                        <input
+                            className="basis-3/4"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") sendMessage();
+                            }}
+                            value={message}
+                            type="text"
+                            defaultValue=""
+                            placeholder="enter message... "
+                            onChange={(event) => setMessage(event.target.value)}
+                        />
+                        <button className="basis-1/4" onClick={sendMessage}>
+                            Send
+                        </button>
                     </div>
-                    You are connected with {receiver}
                 </div>
             </div>
 
